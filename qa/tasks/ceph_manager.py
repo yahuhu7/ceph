@@ -730,6 +730,15 @@ class Thrasher:
         status = self.ceph_manager.get_osd_status()
         assert not the_one in status['down']
 
+    def dump_recovery_reservations(self):
+        """
+        Dump recovery reservations from all live OSDs
+        """
+        self.log("Dump live recovery reservations")
+        for i in self.live_osds:
+            self.ceph_manager.osd_admin_socket(i, command=['dump_recovery_reservations'],
+                                     check_status=True, timeout=30, stdout=stdout)
+
     def test_backfill_full(self):
         """
         Test backfills stopping when the replica fills up.
@@ -2174,6 +2183,8 @@ class CephManager:
                 else:
                     self.log("no progress seen, keeping timeout for now")
                     if time.time() - start >= timeout:
+
+                        self.dump_recovery_reservations()
                         self.log('dumping pgs')
                         out = self.raw_cluster_cmd('pg', 'dump')
                         self.log(out)
