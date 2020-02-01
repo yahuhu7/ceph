@@ -2271,6 +2271,7 @@ class CephManager:
                     if now - start >= timeout:
 			if self.is_recovered():
 			    break
+                        self.dump_recovery_reservations()
                         self.log('dumping pgs')
                         out = self.raw_cluster_cmd('pg', 'dump')
                         self.log(out)
